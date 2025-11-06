@@ -8,22 +8,25 @@ export const putObject = async (file, filename) => {
     Bucket: process.env.AWS_S3_BUCKET,
     Key: filename,
     Body: file,
-    ContentType: "image/jpeg,png,jpg",
+    ContentType: "image/jpeg", // use a valid single content type
   };
+
   try {
     const data = await s3Client.send(new PutObjectCommand(params));
-    if (data.$metadata.httpStatusCode !== 200) {
-      return;
-      let url;
-      url = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${filename}`;
-      console.log(url);
+    if (data.$metadata.httpStatusCode === 200) {
+      const url = `https://${process.env.AWS_S3_BUCKET}.s3.${process.env.AWS_REGION}.amazonaws.com/${filename}`;
       return {
         url,
         Key: params.Key,
       };
+    } else {
+      console.error("Upload failed with status", data.$metadata.httpStatusCode);
+      return false;
     }
   } catch (error) {
-    console.log(error);
-    return false;
+    res.json({
+      status: false,
+      message: error.message,
+    });
   }
 };

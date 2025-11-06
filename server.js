@@ -45,6 +45,14 @@ app.post("/postImages", upload.single("image"), async (req, res) => {
   }
   const { url, Key } = await putObject(file.buffer, filename);
   console.log(url, Key);
+  if (url) {
+    res.json({
+        status:true,
+        message:"successfully uploaded to S3",
+        url,
+        Key,
+    })
+  }
 });
 
 app.listen(3000, () => {
